@@ -1,6 +1,11 @@
 import express from "express";
 import bodyParser from "body-parser";
 import pool from "./db.js";
+import { authenticateApiKey } from "./auth.js";
+import dotenv from "dotenv";
+import moment from "moment";
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
@@ -8,7 +13,7 @@ const port = 3000;
 app.use(bodyParser.json());
 
 // Recibimos logs
-app.post('/logs', async (req, res) => {
+app.post('/logs', authenticateApiKey, async (req, res) => {
     const { timestamp, service_name,log_level, message} = req.body; //deconstruimos el body para no usar req.body.timestamp, req.body.service_name, etc
     try {
         await pool.query('INSERT INTO logs (timestamp, service_name, log_level, message) VALUES ($1, $2, $3, $4)', [timestamp, service_name, log_level, message]);
@@ -23,7 +28,7 @@ app.post('/logs', async (req, res) => {
 // Obtenemos logs
 app.get('/logs', async (req, res) => {
     const {startDate, endDate, serviceName } = req.query;
-    let query = 'SELECT * FROM logs WHERE 1=1';
+    let query = 'SELECT * FROM logs WHERE 1=1'; //1=1 para que siempre sea verdadero y no haya problemas con los AND
     let params = []; //para evitar sql injection
 
     if (startDate){

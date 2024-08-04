@@ -5,6 +5,8 @@ const serviceNames = ['Service1', 'Service2', 'Service3', 'Service4', 'Service5'
 
 const logLevels = ['info', 'error', 'debug'];
 
+const API_KEY = "secret_api_key";
+
 const getRandomItem = (array) => {
     return array[Math.floor(Math.random() * array.length)];
 }
@@ -23,12 +25,13 @@ const sendLog = async (log) => {
     try {
         await axios.post('http://localhost:3000/logs', log, {  //axios.post(url, data, config) estos son los parametros de axios.post
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-api-key': API_KEY
             },
         });
         console.log('Log sent successfully', log);
     } catch (error){
-        console.error('Error sending log', error);
+        console.error('Error sending log', error.response ? error.response.data : error.message);
     }
 };
 
